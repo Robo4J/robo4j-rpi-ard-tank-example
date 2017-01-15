@@ -29,14 +29,13 @@ import com.robo4j.rpi.motor.RpiBaseMotor;
 @RoboMotor(id = RightMotor.MOTOR_NAME)
 public class RightMotor extends RpiBaseMotor {
 
-    private static final int ARDUINO_ADDRESS = 0x04;
-    static final String MOTOR_NAME = "right";
+	private static final int ARDUINO_ADDRESS = 0x04;
+	static final String MOTOR_NAME = "right";
 
-    public RightMotor() {
-        super(ARDUINO_ADDRESS, (byte)2, 20);
-        this.port = 2;
-        this.speed = 40;
-    }
-
+	public RightMotor() {
+		super(ARDUINO_ADDRESS, (byte) 2, 20);
+		this.port = 2;
+		this.speed = 40;
+	}
 
 }

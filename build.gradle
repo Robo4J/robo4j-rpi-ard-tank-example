@@ -14,7 +14,6 @@ repositories {
     mavenLocal()
 }
 
-
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
     manifest {

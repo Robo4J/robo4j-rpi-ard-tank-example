@@ -24,11 +24,11 @@ package com.robo4j.rasp.tank.util;
  * @since 19.12.2016
  */
 public class TankSystemException extends RuntimeException {
-    public TankSystemException(String message) {
-        super(message);
-    }
+	public TankSystemException(String message) {
+		super(message);
+	}
 
-    public TankSystemException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public TankSystemException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

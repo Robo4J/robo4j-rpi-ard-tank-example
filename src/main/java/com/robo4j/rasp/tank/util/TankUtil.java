@@ -19,10 +19,10 @@
 
 package com.robo4j.rasp.tank.util;
 
-import com.pi4j.io.i2c.I2CDevice;
-
 import java.io.IOException;
 import java.util.Objects;
+
+import com.pi4j.io.i2c.I2CDevice;
 
 /**
  * @author Miroslav Wengner (@miragemiko)
@@ -30,15 +30,13 @@ import java.util.Objects;
  */
 public final class TankUtil {
 
+	public static boolean processCommand(I2CDevice device, byte[] command) throws IOException {
+		if (Objects.nonNull(device)) {
+			device.write(command);
+			return true;
+		} else {
+			throw new TankSystemException("device not available for command");
+		}
 
-    public static boolean processCommand(I2CDevice device, byte[] command) throws IOException{
-        if(Objects.nonNull(device)) {
-            device.write(command);
-            return true;
-        } else {
-            throw new TankSystemException("device not available for command");
-        }
-
-
-    }
+	}
 }

@@ -19,6 +19,12 @@
 
 package com.robo4j.rasp.tank.platform;
 
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 import com.robo4j.commons.agent.AgentConsumer;
 import com.robo4j.commons.command.GenericCommand;
 import com.robo4j.commons.concurrent.CoreBusQueue;
@@ -30,97 +36,88 @@ import com.robo4j.core.platform.AbstractPlatformConsumer;
 import com.robo4j.core.platform.ClientPlatformException;
 import com.robo4j.core.util.ConstantUtil;
 
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Exchanger;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
 /**
  * @author Miroslav Wengner (@miragemiko)
  * @since 19.12.2016
  */
 public class ClientPlatformConsumer extends AbstractPlatformConsumer implements AgentConsumer, Callable<Boolean> {
 
-    private static final String RIGHT = "right";
-    private static final String LEFT = "left";
+	private static final String RIGHT = "right";
+	private static final String LEFT = "left";
 
-    private ExecutorService executor;
-    private Exchanger<GenericCommand<RequestCommandEnum>> exchanger;
-    private volatile GenericMotor rightMotor;
-    private volatile GenericMotor leftMotor;
+	private ExecutorService executor;
+	private Exchanger<GenericCommand<RequestCommandEnum>> exchanger;
+	private volatile GenericMotor rightMotor;
+	private volatile GenericMotor leftMotor;
 
-    public ClientPlatformConsumer(final ExecutorService executor,
-                                        final Exchanger<GenericCommand<RequestCommandEnum>> exchanger,
-                                        final Map<String, GenericMotor> engineCache ) {
-        this.executor = executor;
-        this.exchanger = exchanger;
-        this.rightMotor = engineCache.get(RIGHT);
-        this.leftMotor =  engineCache.get(LEFT);
+	public ClientPlatformConsumer(final ExecutorService executor,
+			final Exchanger<GenericCommand<RequestCommandEnum>> exchanger,
+			final Map<String, GenericMotor> engineCache) {
+		this.executor = executor;
+		this.exchanger = exchanger;
+		this.rightMotor = engineCache.get(RIGHT);
+		this.leftMotor = engineCache.get(LEFT);
 
-    }
+	}
 
-    @Override
-    public void setMessageQueue(CoreBusQueue commandsQueue) {
-        throw new ClientPlatformException("NOT IMPLEMENTED messageQueue");
-    }
+	@Override
+	public void setMessageQueue(CoreBusQueue commandsQueue) {
+		throw new ClientPlatformException("NOT IMPLEMENTED messageQueue");
+	}
 
-    @Override
-    public Boolean call() throws Exception {
+	@Override
+	public Boolean call() throws Exception {
 
-        final GenericCommand<RequestCommandEnum> command = exchanger.exchange(null);
-        final boolean isValue = commandEmpty(command.getValue());
-        SimpleLoggingUtil.debug(getClass(), "IsValue: " + isValue + ", command: " + command.getType().getName());
-        SimpleLoggingUtil.debug(getClass(), "direction: " + command.getType());
-        switch (command.getType()){
-            case LEFT:
-                return executeTurn(leftMotor, rightMotor);
-            case RIGHT:
-                return executeTurn(rightMotor, leftMotor);
-            case MOVE:
-                return executeBothEngines(MotorRotationEnum.FORWARD, rightMotor, leftMotor);
-            case BACK:
-                return executeBothEngines(MotorRotationEnum.BACKWARD, rightMotor, leftMotor);
-            case STOP:
-                return executeBothEngines(MotorRotationEnum.STOP, rightMotor, leftMotor);
-            default:
-                throw new ClientPlatformException("PLATFORM COMMAND= " + command );
-        }
+		final GenericCommand<RequestCommandEnum> command = exchanger.exchange(null);
+		final boolean isValue = commandEmpty(command.getValue());
+		SimpleLoggingUtil.debug(getClass(), "IsValue: " + isValue + ", command: " + command.getType().getName());
+		SimpleLoggingUtil.debug(getClass(), "direction: " + command.getType());
+		switch (command.getType()) {
+		case LEFT:
+			return executeTurn(leftMotor, rightMotor);
+		case RIGHT:
+			return executeTurn(rightMotor, leftMotor);
+		case MOVE:
+			return executeBothEngines(MotorRotationEnum.FORWARD, rightMotor, leftMotor);
+		case BACK:
+			return executeBothEngines(MotorRotationEnum.BACKWARD, rightMotor, leftMotor);
+		case STOP:
+			return executeBothEngines(MotorRotationEnum.STOP, rightMotor, leftMotor);
+		default:
+			throw new ClientPlatformException("PLATFORM COMMAND= " + command);
+		}
 
+	}
 
+	// Private Methods
+	private boolean commandEmpty(final String value) {
+		return value.equals(ConstantUtil.EMPTY_STRING);
+	}
 
-    }
-
-    //Private Methods
-    private boolean commandEmpty(final String value){
-        return value.equals(ConstantUtil.EMPTY_STRING);
-    }
-
-    //Private Methods
-    @Override
-    public Future<Boolean> runEngine(GenericMotor engine, MotorRotationEnum rotation){
-        return executor.submit(() -> {
-            switch (rotation){
-                /* stop  */
-                case STOP:
-                    SimpleLoggingUtil.debug(getClass(), "runEngine STOP");
-                    engine.stop();
-                    return engine.isMoving();
-                /* forward */
-                case FORWARD:
-                    SimpleLoggingUtil.debug(getClass(), "runEngine FORWARD");
-                    engine.forward();
-                    return engine.isMoving();
-                /* backward */
-                case BACKWARD:
-                    SimpleLoggingUtil.debug(getClass(), "runEngine BACKWARD");
-                    engine.backward();
-                    return true;
-                default:
-                    throw new ClientPlatformException("no such rotation= " + rotation);
-            }
-        });
-    }
-
+	// Private Methods
+	@Override
+	public Future<Boolean> runEngine(GenericMotor engine, MotorRotationEnum rotation) {
+		return executor.submit(() -> {
+			switch (rotation) {
+			/* stop */
+			case STOP:
+				SimpleLoggingUtil.debug(getClass(), "runEngine STOP");
+				engine.stop();
+				return engine.isMoving();
+			/* forward */
+			case FORWARD:
+				SimpleLoggingUtil.debug(getClass(), "runEngine FORWARD");
+				engine.forward();
+				return engine.isMoving();
+			/* backward */
+			case BACKWARD:
+				SimpleLoggingUtil.debug(getClass(), "runEngine BACKWARD");
+				engine.backward();
+				return true;
+			default:
+				throw new ClientPlatformException("no such rotation= " + rotation);
+			}
+		});
+	}
 
 }

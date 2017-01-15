@@ -19,6 +19,9 @@
 
 package com.robo4j.rasp.tank.platform;
 
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import com.robo4j.commons.agent.AgentProducer;
 import com.robo4j.commons.command.GenericCommand;
 import com.robo4j.commons.concurrent.CoreBusQueue;
@@ -26,41 +29,39 @@ import com.robo4j.commons.logging.SimpleLoggingUtil;
 import com.robo4j.core.client.enums.RequestCommandEnum;
 import com.robo4j.core.platform.ClientPlatformException;
 
-import java.util.concurrent.Exchanger;
-import java.util.concurrent.LinkedBlockingQueue;
-
 /**
  * @author Miroslav Wengner (@miragemiko)
  * @since 17.12.2016
  */
-//TODO: move to generic
-public class ClientPlatformProducer implements AgentProducer, Runnable{
+// TODO: move to generic
+public class ClientPlatformProducer implements AgentProducer, Runnable {
 
-    private LinkedBlockingQueue<GenericCommand<RequestCommandEnum>> commandQueue;
-    private Exchanger<GenericCommand<RequestCommandEnum>> exchanger;
-    public ClientPlatformProducer(final LinkedBlockingQueue<GenericCommand<RequestCommandEnum>> commandQueue,
-                                  final Exchanger<GenericCommand<RequestCommandEnum>> exchanger) {
-        this.commandQueue = commandQueue;
-        this.exchanger = exchanger;
-    }
+	private LinkedBlockingQueue<GenericCommand<RequestCommandEnum>> commandQueue;
+	private Exchanger<GenericCommand<RequestCommandEnum>> exchanger;
 
-    @Override
-    public CoreBusQueue getMessageQueue() {
-        return null;
-    }
+	public ClientPlatformProducer(final LinkedBlockingQueue<GenericCommand<RequestCommandEnum>> commandQueue,
+			final Exchanger<GenericCommand<RequestCommandEnum>> exchanger) {
+		this.commandQueue = commandQueue;
+		this.exchanger = exchanger;
+	}
 
-    @Override
-    public void run() {
+	@Override
+	public CoreBusQueue getMessageQueue() {
+		return null;
+	}
 
-        GenericCommand<RequestCommandEnum> command = null;
-        try {
-            command= commandQueue.take();
-            exchanger.exchange(command);
-        } catch (InterruptedException e) {
-            throw new ClientPlatformException("Platform PRODUCER e", e);
-        } finally {
-            SimpleLoggingUtil.print(getClass(),"ClientPlatformProducer exchanged= " + command);
-        }
-    }
+	@Override
+	public void run() {
+
+		GenericCommand<RequestCommandEnum> command = null;
+		try {
+			command = commandQueue.take();
+			exchanger.exchange(command);
+		} catch (InterruptedException e) {
+			throw new ClientPlatformException("Platform PRODUCER e", e);
+		} finally {
+			SimpleLoggingUtil.print(getClass(), "ClientPlatformProducer exchanged= " + command);
+		}
+	}
 
 }
