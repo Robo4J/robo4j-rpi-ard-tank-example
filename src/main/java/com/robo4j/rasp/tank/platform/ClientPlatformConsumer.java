@@ -89,12 +89,6 @@ public class ClientPlatformConsumer extends AbstractPlatformConsumer implements 
 
 	}
 
-	// Private Methods
-	private boolean commandEmpty(final String value) {
-		return value.equals(ConstantUtil.EMPTY_STRING);
-	}
-
-	// Private Methods
 	@Override
 	public Future<Boolean> runEngine(GenericMotor engine, MotorRotationEnum rotation) {
 		return executor.submit(() -> {
@@ -118,6 +112,11 @@ public class ClientPlatformConsumer extends AbstractPlatformConsumer implements 
 				throw new ClientPlatformException("no such rotation= " + rotation);
 			}
 		});
+	}
+
+	// Private Methods
+	private boolean commandEmpty(final String value) {
+		return value.equals(ConstantUtil.EMPTY_STRING);
 	}
 
 }
