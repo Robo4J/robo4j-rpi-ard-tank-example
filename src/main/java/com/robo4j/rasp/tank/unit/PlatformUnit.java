@@ -41,12 +41,12 @@ import com.robo4j.commons.agent.ProcessAgent;
 import com.robo4j.commons.agent.ProcessAgentBuilder;
 import com.robo4j.commons.annotation.RoboUnit;
 import com.robo4j.commons.command.GenericCommand;
+import com.robo4j.commons.command.PlatformCommandEnum;
 import com.robo4j.commons.command.RoboUnitCommand;
 import com.robo4j.commons.logging.SimpleLoggingUtil;
 import com.robo4j.commons.motor.GenericMotor;
 import com.robo4j.commons.registry.EngineRegistry;
 import com.robo4j.commons.unit.DefaultUnit;
-import com.robo4j.core.client.enums.RequestCommandEnum;
 import com.robo4j.core.platform.ClientPlatformException;
 import com.robo4j.rasp.tank.platform.ClientPlatformConsumer;
 import com.robo4j.rasp.tank.platform.ClientPlatformProducer;
@@ -57,9 +57,14 @@ import com.robo4j.rpi.unit.RpiUnit;
  * @since 17.12.2016
  */
 
-@RoboUnit(id = PlatformUnit.UNIT_NAME, system = PlatformUnit.SYSTEM_NAME, producer = PlatformUnit.PRODUCER_NAME, consumer = {
-		"left", "right" })
-public class PlatformUnit extends DefaultUnit implements RpiUnit {
+//@formatter:off
+
+@RoboUnit(id = PlatformUnit.UNIT_NAME,
+		  system = PlatformUnit.SYSTEM_NAME,
+		  producer = PlatformUnit.PRODUCER_NAME,
+		  consumer = {"left", "right" })
+//@formatter:on
+public class PlatformUnit extends DefaultUnit<RpiUnit> implements RpiUnit {
 
 	private static final int AGENT_PLATFORM_POSITION = 0;
 	private static final String[] CONSUMER_NAME = { "left", "right" };
@@ -67,7 +72,7 @@ public class PlatformUnit extends DefaultUnit implements RpiUnit {
 	static final String SYSTEM_NAME = "tankBrick1";
 	static final String PRODUCER_NAME = "default";
 
-	private volatile LinkedBlockingQueue<GenericCommand<RequestCommandEnum>> commandQueue;
+	private volatile LinkedBlockingQueue<GenericCommand<PlatformCommandEnum>> commandQueue;
 
 	public PlatformUnit() {
 		SimpleLoggingUtil.debug(getClass(), "PlatformUnit");
@@ -95,15 +100,14 @@ public class PlatformUnit extends DefaultUnit implements RpiUnit {
 		return active.get();
 	}
 
-	// TODO: looks like similar to all
 	@Override
 	public RpiUnit init(Object input) {
 		if (Objects.nonNull(executorForAgents)) {
 			this.agents = new ArrayList<>();
 			this.active = new AtomicBoolean(false);
 			this.commandQueue = new LinkedBlockingQueue<>();
-			SimpleLoggingUtil.print(PlatformUnit.class, "TankRpi: INIT");
-			final Exchanger<GenericCommand<RequestCommandEnum>> platformExchanger = new Exchanger<>();
+			SimpleLoggingUtil.print(getClass(), "TankRpi: INIT");
+			final Exchanger<GenericCommand<PlatformCommandEnum>> platformExchanger = new Exchanger<>();
 
 			final Map<String, GenericMotor> enginesMap = EngineRegistry.getInstance().getByNames(CONSUMER_NAME);
 
@@ -123,7 +127,7 @@ public class PlatformUnit extends DefaultUnit implements RpiUnit {
 	@Override
 	public boolean process(RoboUnitCommand command) {
 		try {
-			GenericCommand<RequestCommandEnum> processCommand = (GenericCommand<RequestCommandEnum>) command;
+			GenericCommand<PlatformCommandEnum> processCommand = (GenericCommand<PlatformCommandEnum>) command;
 			SimpleLoggingUtil.debug(getClass(), "Tank Command: " + command);
 			commandQueue.put(processCommand);
 			ProcessAgent platformAgent = (ProcessAgent) agents.get(AGENT_PLATFORM_POSITION);

@@ -27,11 +27,11 @@ import java.util.concurrent.Future;
 
 import com.robo4j.commons.agent.AgentConsumer;
 import com.robo4j.commons.command.GenericCommand;
+import com.robo4j.commons.command.PlatformCommandEnum;
 import com.robo4j.commons.concurrent.CoreBusQueue;
 import com.robo4j.commons.logging.SimpleLoggingUtil;
 import com.robo4j.commons.motor.GenericMotor;
 import com.robo4j.commons.motor.MotorRotationEnum;
-import com.robo4j.core.client.enums.RequestCommandEnum;
 import com.robo4j.core.platform.AbstractPlatformConsumer;
 import com.robo4j.core.platform.ClientPlatformException;
 import com.robo4j.core.util.ConstantUtil;
@@ -46,12 +46,12 @@ public class ClientPlatformConsumer extends AbstractPlatformConsumer implements 
 	private static final String LEFT = "left";
 
 	private ExecutorService executor;
-	private Exchanger<GenericCommand<RequestCommandEnum>> exchanger;
+	private Exchanger<GenericCommand<PlatformCommandEnum>> exchanger;
 	private volatile GenericMotor rightMotor;
 	private volatile GenericMotor leftMotor;
 
 	public ClientPlatformConsumer(final ExecutorService executor,
-			final Exchanger<GenericCommand<RequestCommandEnum>> exchanger,
+			final Exchanger<GenericCommand<PlatformCommandEnum>> exchanger,
 			final Map<String, GenericMotor> engineCache) {
 		this.executor = executor;
 		this.exchanger = exchanger;
@@ -68,7 +68,7 @@ public class ClientPlatformConsumer extends AbstractPlatformConsumer implements 
 	@Override
 	public Boolean call() throws Exception {
 
-		final GenericCommand<RequestCommandEnum> command = exchanger.exchange(null);
+		final GenericCommand<PlatformCommandEnum> command = exchanger.exchange(null);
 		final boolean isValue = commandEmpty(command.getValue());
 		SimpleLoggingUtil.debug(getClass(), "IsValue: " + isValue + ", command: " + command.getType().getName());
 		SimpleLoggingUtil.debug(getClass(), "direction: " + command.getType());
