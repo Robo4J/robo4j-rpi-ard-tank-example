@@ -24,7 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.robo4j.commons.agent.AgentProducer;
 import com.robo4j.commons.command.GenericCommand;
-import com.robo4j.commons.command.PlatformCommandEnum;
+import com.robo4j.commons.command.PlatformUnitCommandEnum;
 import com.robo4j.commons.concurrent.CoreBusQueue;
 import com.robo4j.commons.logging.SimpleLoggingUtil;
 import com.robo4j.core.platform.ClientPlatformException;
@@ -36,11 +36,11 @@ import com.robo4j.core.platform.ClientPlatformException;
 // TODO: move to generic
 public class ClientPlatformProducer implements AgentProducer, Runnable {
 
-	private LinkedBlockingQueue<GenericCommand<PlatformCommandEnum>> commandQueue;
-	private Exchanger<GenericCommand<PlatformCommandEnum>> exchanger;
+	private LinkedBlockingQueue<GenericCommand<PlatformUnitCommandEnum>> commandQueue;
+	private Exchanger<GenericCommand<PlatformUnitCommandEnum>> exchanger;
 
-	public ClientPlatformProducer(final LinkedBlockingQueue<GenericCommand<PlatformCommandEnum>> commandQueue,
-			final Exchanger<GenericCommand<PlatformCommandEnum>> exchanger) {
+	public ClientPlatformProducer(final LinkedBlockingQueue<GenericCommand<PlatformUnitCommandEnum>> commandQueue,
+			final Exchanger<GenericCommand<PlatformUnitCommandEnum>> exchanger) {
 		this.commandQueue = commandQueue;
 		this.exchanger = exchanger;
 	}
@@ -53,7 +53,7 @@ public class ClientPlatformProducer implements AgentProducer, Runnable {
 	@Override
 	public void run() {
 
-		GenericCommand<PlatformCommandEnum> command = null;
+		GenericCommand<PlatformUnitCommandEnum> command = null;
 		try {
 			command = commandQueue.take();
 			exchanger.exchange(command);

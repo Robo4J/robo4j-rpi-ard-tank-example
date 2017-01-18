@@ -41,7 +41,7 @@ import com.robo4j.commons.agent.ProcessAgent;
 import com.robo4j.commons.agent.ProcessAgentBuilder;
 import com.robo4j.commons.annotation.RoboUnit;
 import com.robo4j.commons.command.GenericCommand;
-import com.robo4j.commons.command.PlatformCommandEnum;
+import com.robo4j.commons.command.PlatformUnitCommandEnum;
 import com.robo4j.commons.command.RoboUnitCommand;
 import com.robo4j.commons.logging.SimpleLoggingUtil;
 import com.robo4j.commons.motor.GenericMotor;
@@ -72,7 +72,7 @@ public class PlatformUnit extends DefaultUnit<RpiUnit> implements RpiUnit {
 	static final String SYSTEM_NAME = "tankBrick1";
 	static final String PRODUCER_NAME = "default";
 
-	private volatile LinkedBlockingQueue<GenericCommand<PlatformCommandEnum>> commandQueue;
+	private volatile LinkedBlockingQueue<GenericCommand<PlatformUnitCommandEnum>> commandQueue;
 
 	public PlatformUnit() {
 		SimpleLoggingUtil.debug(getClass(), "PlatformUnit");
@@ -107,7 +107,7 @@ public class PlatformUnit extends DefaultUnit<RpiUnit> implements RpiUnit {
 			this.active = new AtomicBoolean(false);
 			this.commandQueue = new LinkedBlockingQueue<>();
 			SimpleLoggingUtil.print(getClass(), "TankRpi: INIT");
-			final Exchanger<GenericCommand<PlatformCommandEnum>> platformExchanger = new Exchanger<>();
+			final Exchanger<GenericCommand<PlatformUnitCommandEnum>> platformExchanger = new Exchanger<>();
 
 			final Map<String, GenericMotor> enginesMap = EngineRegistry.getInstance().getByNames(CONSUMER_NAME);
 
@@ -127,7 +127,7 @@ public class PlatformUnit extends DefaultUnit<RpiUnit> implements RpiUnit {
 	@Override
 	public boolean process(RoboUnitCommand command) {
 		try {
-			GenericCommand<PlatformCommandEnum> processCommand = (GenericCommand<PlatformCommandEnum>) command;
+			GenericCommand<PlatformUnitCommandEnum> processCommand = (GenericCommand<PlatformUnitCommandEnum>) command;
 			SimpleLoggingUtil.debug(getClass(), "Tank Command: " + command);
 			commandQueue.put(processCommand);
 			ProcessAgent platformAgent = (ProcessAgent) agents.get(AGENT_PLATFORM_POSITION);
